@@ -24,9 +24,64 @@ app.get('/api/v1/task', (req, res) => {
     res.json(apiResponse.taskList);
 });
 
+app.get('/api/v1/task/:id', (req, res) => {
+    res.json(apiResponse.taskList[req.params.id - 1]);
+});
+
 app.post('/api/v1/task', (req, res) => {
     res.json(apiResponse.taskInserted);
 });
+
+app.put('/api/v1/task/:id/note/:note_id', (req, res) => {
+
+    console.log(req.body);
+    let notes = [];
+    apiResponse.taskList.forEach((task) => {
+        if (task.id == req.params.id) {
+            //notes = task.notes;
+            Object.assign(notes, task.notes);
+
+            notes.forEach((note) => {
+                if (note.id == req.params.note_id) {
+                    //note = req.body;
+                    Object.assign(note, req.body);
+                }
+            });
+        }
+    })
+
+    let json = JSON.stringify(apiResponse);
+    fs.writeFileSync(`${__dirname}/data.json`, json, 'utf8', (cb) => {
+        console.log(`Callback: ${cb}`);
+    });
+
+    res.json(notes);
+});
+
+app.post('/api/v1/task/:id/note/', (req, res) => {
+
+    console.log(req.body);
+    let notes = [];
+    apiResponse.taskList.forEach((task) => {
+        if (task.id == req.params.id) {
+            task.notes.push({
+                id: Math.floor(Math.random() * 1000),
+                created_date: new Date().toISOString(),
+                name: req.body.name,
+                text: req.body.text
+            });
+
+            Object.assign(notes, task.notes);
+        }
+    });
+
+    let json = JSON.stringify(apiResponse);
+    fs.writeFileSync(`${__dirname}/data.json`, json, 'utf8', (cb) => {
+        console.log(`Callback: ${cb}`);
+    });
+
+    res.json(notes);
+})
 
 app.get('/api/v1/notes', (req, res) => {
     res.json(apiResponse.noteList);

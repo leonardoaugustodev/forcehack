@@ -2,9 +2,7 @@
   <div class="notes">
     <h2>Notes</h2>
     <template v-for="note in notes">
-      <div :key="note.id" @click="handleNavigate(note.id)" class="note">
-        {{ note.name }}
-      </div>
+      <div :key="note.id" @click="handleNavigate(note.id)" class="note">{{ note.name }}</div>
     </template>
   </div>
 </template>
@@ -13,7 +11,7 @@
 import axios from 'axios';
 
 export default {
-  name: 'NotesList',
+  name: 'NoteList',
   created() {
     this.handleRetrieveNotes();
   },
@@ -25,7 +23,9 @@ export default {
   computed: {},
   methods: {
     async handleRetrieveNotes() {
-      const response = await axios.get('http://192.168.15.171:3002/api/v1/notes');
+      const response = await axios.get(
+        'http://192.168.15.171:3002/api/v1/notes',
+      );
 
       this.notes = response.data;
     },

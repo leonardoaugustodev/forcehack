@@ -1,8 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
-import NotesList from '../views/NotesList.vue';
-import NotesDetails from '../views/NotesDetails.vue';
+import NoteList from '../views/NoteList.vue';
+import NoteDetails from '../views/NoteDetails.vue';
+import TaskList from '../views/TaskList.vue';
+import TaskDetails from '../views/TaskDetails.vue';
 
 Vue.use(VueRouter);
 
@@ -13,23 +15,33 @@ const routes = [
     component: Home,
   },
   {
-    path: '/notes',
-    name: 'NotesList',
-    component: NotesList,
+    path: '/note',
+    name: 'NoteList',
+    component: NoteList,
   },
   {
-    path: '/notes/:id',
-    name: 'NotesDetails',
-    component: NotesDetails,
+    path: '/note/:id',
+    name: 'NoteDetails',
+    component: NoteDetails,
   },
   {
-    path: '/tasks',
-    name: 'Tasks',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/Tasks.vue'),
+    path: '/task',
+    name: 'TaskList',
+    component: TaskList,
   },
+  {
+    path: '/task/:id',
+    name: 'TaskDetails',
+    component: TaskDetails,
+  },
+  // {
+  //   path: '/tasks',
+  //   name: 'Tasks',
+  //   // route level code-splitting
+  //   // this generates a separate chunk (about.[hash].js) for this route
+  //   // which is lazy-loaded when the route is visited.
+  //   component: () => import(/* webpackChunkName: "about" */ '../views/TaskList.vue'),
+  // },
 ];
 
 const router = new VueRouter({

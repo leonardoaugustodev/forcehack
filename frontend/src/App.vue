@@ -1,13 +1,15 @@
 <template>
   <div id="app">
     <div id="header">
-      <img src="./assets/logo.png" />
+      <div>
+        <img src="./assets/logo.png" />
+      </div>
     </div>
     <div id="main">
       <div id="nav">
         <router-link tag="div" to="/">Home</router-link>
-        <router-link tag="div" to="/tasks">Tasks</router-link>
-        <router-link tag="div" to="/notes">Notes</router-link>
+        <router-link tag="div" to="/task">Tasks</router-link>
+        <router-link tag="div" to="/note">Notes</router-link>
       </div>
       <div id="content">
         <router-view />
@@ -36,11 +38,15 @@
   justify-content: flex-start;
   align-items: center;
 
-  border-bottom: 2px solid rgb(0, 89, 255);
+  border-bottom: 2px solid $light-blue;
   height: 100px;
 
-  img {
-    height: 80px;
+  > div {
+    width: 200px;
+
+    img {
+      height: 80px;
+    }
   }
 }
 
@@ -57,7 +63,7 @@
   justify-content: center;
 
   width: 200px;
-  background: #021f2f;
+  background: $dark-blue;
 
   div {
     margin: 10px 0 10px 0;
@@ -75,7 +81,7 @@
     cursor: pointer;
 
     &.router-link-exact-active {
-      color: #42b983;
+      color: $light-green;
     }
 
     &:hover {

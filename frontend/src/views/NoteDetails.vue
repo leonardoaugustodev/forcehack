@@ -18,7 +18,7 @@ import marked from 'marked';
 import axios from 'axios';
 
 export default {
-  name: 'NotesDetails',
+  name: 'NoteDetails',
   created() {
     this.handleRetrieveNotes();
   },
