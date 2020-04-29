@@ -1,11 +1,19 @@
 <template>
   <div class="tasks">
-    <h2>Tasks</h2>
+    <div class="header">
+      <span class="header-title">Tasks</span>
+      <CButton label="New task" :onClick="handleNewTask" icon="plus" />
+    </div>
+
     <template v-for="task in tasks">
       <div :key="task.id" @click="handleNavigate(task.id)" class="task">
         <span class="task-name">{{ task.name }}</span>
         <span class="task-priority">{{ task.priority }}</span>
-        <span class="task-status" :style="'color: ' + task.status.color">{{ task.status.name }}</span>
+        <span class="task-status" :style="'color: ' + task.status.color">
+          {{
+          task.status.name
+          }}
+        </span>
         <span class="task-time">{{ task.total_reported }}</span>
         <span class="task-date">{{ formatDate(task.created_date) }}</span>
       </div>
@@ -15,9 +23,13 @@
 
 <script>
 import axios from 'axios';
+import CButton from '@/components/CButton.vue';
 
 export default {
   name: 'TaskList',
+  components: {
+    CButton,
+  },
   created() {
     this.handleRetrieveTasks();
   },
@@ -38,6 +50,10 @@ export default {
     handleNavigate(taskId) {
       console.log(taskId);
       this.$router.push(`/task/${taskId}`);
+    },
+
+    handleNewTask() {
+      console.log('handleNewTask');
     },
 
     formatDate(date) {
@@ -97,6 +113,57 @@ export default {
     width: 15%;
     color: rgb(94, 194, 201);
     font-size: 12px;
+  }
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: bolder;
+}
+
+#new-task {
+  > h4 {
+    border-bottom: 1px solid $light-blue;
+  }
+
+  > textarea {
+    margin-bottom: 20px;
+  }
+}
+button {
+  height: 24px;
+  width: 80px;
+
+  border: 0px;
+  border-radius: 4px;
+
+  background: rgb(0, 0, 0, 0);
+  color: $light-blue;
+
+  &:hover {
+    background: $light-green;
+    color: $blue;
+    transition: 0.5s all ease;
+
+    > svg {
+      display: none;
+    }
+
+    &[for='edit']::after {
+      content: 'Edit';
+    }
+
+    &[for='save']::after {
+      content: 'Save';
+    }
+
+    &[for='cancel']::after {
+      content: 'Cancel';
+    }
+
+    &[for='new-note']::after {
+      content: 'Add note';
+    }
   }
 }
 </style>

@@ -53,8 +53,8 @@
 
       <div class="right">
         <div class="task-created-date">
-          <label for="task-created-date">Date:</label>
-          <span id="task-created-date">{{ dateFormatted(task.created_date) }}</span>
+          <span class="label">Date:</span>
+          {{ dateFormatted(task.created_date) }}
         </div>
         <div class="task-priority">
           <span class="label">Priority:</span>
@@ -88,7 +88,7 @@ import axios from 'axios';
 import CInput from '@/components/CInput.vue';
 
 export default {
-  name: 'TaskDetails',
+  name: 'ReportDetails',
   components: {
     CInput,
   },

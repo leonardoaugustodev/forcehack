@@ -10,6 +10,7 @@
         <router-link tag="div" to="/">Home</router-link>
         <router-link tag="div" to="/task">Tasks</router-link>
         <router-link tag="div" to="/note">Notes</router-link>
+        <router-link tag="div" to="/report">Reports</router-link>
       </div>
       <div id="content">
         <router-view />

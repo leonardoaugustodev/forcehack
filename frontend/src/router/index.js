@@ -5,6 +5,8 @@ import NoteList from '../views/NoteList.vue';
 import NoteDetails from '../views/NoteDetails.vue';
 import TaskList from '../views/TaskList.vue';
 import TaskDetails from '../views/TaskDetails.vue';
+import ReportList from '../views/ReportList.vue';
+import ReportDetails from '../views/ReportDetails.vue';
 
 Vue.use(VueRouter);
 
@@ -33,6 +35,16 @@ const routes = [
     path: '/task/:id',
     name: 'TaskDetails',
     component: TaskDetails,
+  },
+  {
+    path: '/report',
+    name: 'ReportList',
+    component: ReportList,
+  },
+  {
+    path: '/report/:id',
+    name: 'ReportDetails',
+    component: ReportDetails,
   },
   // {
   //   path: '/tasks',
