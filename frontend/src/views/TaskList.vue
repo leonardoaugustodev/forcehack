@@ -2,8 +2,18 @@
   <div class="tasks">
     <div class="header">
       <span class="header-title">Tasks</span>
-      <CButton label="New task" :onClick="handleNewTask" icon="plus" />
+      <my-button label="New task" :onClick="handleNewTask" icon="plus" />
     </div>
+
+    <my-modal :show="true" title="New task" :onConfirm="handleNewTask">
+      <template v-slot:content>
+        <my-input label="Task name" />
+        <my-input label="Task description" />
+      </template>
+      <template v-slot:footer>
+        <!-- <CButton label="Confirm" icon="check" onclick="console.log('ok')" /> -->
+      </template>
+    </my-modal>
 
     <template v-for="task in tasks">
       <div :key="task.id" @click="handleNavigate(task.id)" class="task">
@@ -24,11 +34,15 @@
 <script>
 import axios from 'axios';
 import CButton from '@/components/CButton.vue';
+import CModal from '@/components/CModal.vue';
+import CInput from '@/components/CInput.vue';
 
 export default {
   name: 'TaskList',
   components: {
-    CButton,
+    'my-button': CButton,
+    'my-modal': CModal,
+    'my-input': CInput,
   },
   created() {
     this.handleRetrieveTasks();

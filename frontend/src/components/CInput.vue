@@ -9,7 +9,7 @@
       v-bind:value="value"
       v-on:input="$emit('input', $event.target.value)"
     />
-    <label for="name" class="form__label">{{label}}</label>
+    <label for="name" class="form__label">{{ label }}</label>
   </div>
 </template>
 
@@ -34,7 +34,6 @@ $gray: #9b9b9b;
   position: relative;
   padding: 15px 0 0;
   margin: 10px;
-  width: 100%;
 }
 
 .form__field {
