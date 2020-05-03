@@ -1,92 +1,56 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Task = use('App/Models/Task')
 
 /**
  * Resourceful controller for interacting with tasks
  */
 class TaskController {
-  /**
-   * Show a list of all tasks.
-   * GET tasks
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+
+  async index() {
+    return await Task.query().with('status').with('priority').fetch()
   }
 
-  /**
-   * Render a form to be used for creating a new task.
-   * GET tasks/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request, response }) {
+    const taskInserted = await Task.create(request.body)
+
+    if (!taskInserted) {
+      return response.status(500).json({ message: 'Error on inserting task' })
+    }
+
+    return taskInserted
   }
 
-  /**
-   * Create/save a new task.
-   * POST tasks
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    const task = await Task.find(params.id)
+
+    if (!task) {
+      return response.status(404).json({ message: 'Task not found' })
+    }
+
+    return task;
   }
 
-  /**
-   * Display a single task.
-   * GET tasks/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
+  async update({ params, request, response }) {
+    const task = await Task.find(params.id)
+
+    if (!task) {
+      return response.status(404).json({ message: 'Task not found' })
+    }
+
+    task.merge(request.body)
+
+    return await task.save()
   }
 
-  /**
-   * Render a form to update an existing task.
-   * GET tasks/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+  async destroy({ params, response }) {
+    const task = await Task.find(params.id)
 
-  /**
-   * Update task details.
-   * PUT or PATCH tasks/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+    if (!task) {
+      return response.status(404).json({ message: 'Task not found' })
+    }
 
-  /**
-   * Delete a task with id.
-   * DELETE tasks/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    await task.delete()
   }
 }
 

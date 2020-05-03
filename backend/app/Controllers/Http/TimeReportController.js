@@ -1,92 +1,54 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const TimeReport = use('App/Models/TimeReport')
 /**
  * Resourceful controller for interacting with timereports
  */
 class TimeReportController {
-  /**
-   * Show a list of all timereports.
-   * GET timereports
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async index() {
+    return await TimeReport.all()
   }
 
-  /**
-   * Render a form to be used for creating a new timereport.
-   * GET timereports/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request }) {
+    const timeReportInserted = await TimeReport.create(request.body)
+
+    if (!timeReportInserted) {
+      return response.status(500).json({ message: 'Error on inserting timeReport' })
+    }
+
+    return timeReportInserted
   }
 
-  /**
-   * Create/save a new timereport.
-   * POST timereports
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    const timeReport = await TimeReport.find(params.id)
+
+    if (!timeReport) {
+      return response.status(404).json({ message: 'TimeReport not found' })
+    }
+
+    return timeReport;
   }
 
-  /**
-   * Display a single timereport.
-   * GET timereports/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
+  async update({ params, request, response }) {
+    const timeReport = await TimeReport.find(params.id)
+
+    if (!timeReport) {
+      return response.status(404).json({ message: 'TimeReport not found' })
+    }
+
+    timeReport.merge(request.body)
+
+    return await timeReport.save()
   }
 
-  /**
-   * Render a form to update an existing timereport.
-   * GET timereports/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+  async destroy({ params, response }) {
+    const timeReport = await TimeReport.find(params.id)
 
-  /**
-   * Update timereport details.
-   * PUT or PATCH timereports/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+    if (!timeReport) {
+      return response.status(404).json({ message: 'TimeReport not found' })
+    }
 
-  /**
-   * Delete a timereport with id.
-   * DELETE timereports/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    await timeReport.delete()
   }
 }
 

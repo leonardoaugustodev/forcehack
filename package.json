@@ -8,6 +8,7 @@
   "scripts": {
     "serve": "run-p serve:backend serve:frontend",
     "dev": "run-p serve:fakeserver serve:frontend",
+    "serve:backend": "cd backend && adonis serve --dev",
     "serve:frontend": "cd frontend && yarn serve",
     "serve:fakeserver": "cd fakeserver && nodemon src/server/api.js"
   },

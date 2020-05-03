@@ -19,3 +19,23 @@ const Route = use('Route')
 Route.get('/', () => {
   return { greeting: 'Hello world in JSON' }
 })
+
+Route.resource('/users', 'UserController').apiOnly()
+
+Route
+  .post('login', 'UserController.login')
+  .middleware('guest')
+
+Route
+  .get('users/:id', 'UserController.show')
+  .middleware('auth')
+
+Route.resource('/tasks', 'TaskController').apiOnly()
+
+Route.resource('/notes', 'NoteController').apiOnly()
+
+Route.resource('/statuses', 'StatusController').apiOnly()
+
+Route.resource('/priorities', 'PriorityController').apiOnly()
+
+Route.resource('/times', 'TimeReportController').apiOnly()

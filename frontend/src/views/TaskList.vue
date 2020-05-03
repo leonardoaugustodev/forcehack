@@ -2,37 +2,40 @@
   <div class="tasks">
     <div class="header">
       <span class="header-title">Tasks</span>
-      <my-button label="New task" :onClick="handleNewTask" icon="plus" />
+      <my-button label="New task" :onClick="() => {modalNewTask = true}" icon="plus" />
     </div>
 
-    <my-modal :show="true" title="New task" :onConfirm="handleNewTask">
+    <my-modal
+      v-show="modalNewTask"
+      title="New task"
+      :onConfirm="handleNewTask"
+      :onClose="() => {modalNewTask = false}"
+    >
       <template v-slot:content>
-        <my-input label="Task name" />
-        <my-input label="Task description" />
+        <my-input v-model="newTask.name" label="Task name" />
+        <my-input v-model="newTask.description" label="Task description" />
       </template>
-      <template v-slot:footer>
-        <!-- <CButton label="Confirm" icon="check" onclick="console.log('ok')" /> -->
-      </template>
+      <template v-slot:footer></template>
     </my-modal>
 
     <template v-for="task in tasks">
       <div :key="task.id" @click="handleNavigate(task.id)" class="task">
         <span class="task-name">{{ task.name }}</span>
-        <span class="task-priority">{{ task.priority }}</span>
+        <span class="task-priority">{{ task.priority.name }}</span>
         <span class="task-status" :style="'color: ' + task.status.color">
           {{
           task.status.name
           }}
         </span>
         <span class="task-time">{{ task.total_reported }}</span>
-        <span class="task-date">{{ formatDate(task.created_date) }}</span>
+        <span class="task-date">{{ formatDate(task.created_at) }}</span>
       </div>
     </template>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+// import axios from 'axios';
 import CButton from '@/components/CButton.vue';
 import CModal from '@/components/CModal.vue';
 import CInput from '@/components/CInput.vue';
@@ -50,14 +53,14 @@ export default {
   data() {
     return {
       tasks: [],
+      newTask: {},
+      modalNewTask: false,
     };
   },
   computed: {},
   methods: {
     async handleRetrieveTasks() {
-      console.log('entrou no retrieve');
-      const response = await axios.get('http://192.168.15.171:3002/api/v1/task');
-
+      const response = await this.$http.get('tasks');
       this.tasks = response.data;
     },
 
@@ -66,12 +69,17 @@ export default {
       this.$router.push(`/task/${taskId}`);
     },
 
-    handleNewTask() {
-      console.log('handleNewTask');
+    async handleNewTask() {
+      const response = await this.$http.post('tasks', {
+        ...this.newTask,
+        status_id: 2,
+        priority_id: 2,
+      });
+      console.log(response);
     },
 
     formatDate(date) {
-      const dateFormatted = new Date(date).toLocaleDateString();
+      const dateFormatted = new Date(date).toLocaleDateString('pt-br');
 
       if (!dateFormatted) {
         return '-';
@@ -128,6 +136,13 @@ export default {
     color: rgb(94, 194, 201);
     font-size: 12px;
   }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid $blue;
+  padding: 10px;
 }
 
 .header-title {

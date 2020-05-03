@@ -4,6 +4,23 @@
 const Model = use('Model')
 
 class Task extends Model {
+
+    notes() {
+        return this.hasMany('App/Models/Note')
+    }
+
+    timeReports() {
+        return this.hasMany('App/Models/TimeReport')
+    }
+
+    status() {
+        return this.belongsTo('App/Models/Status')
+    }
+
+    priority() {
+        return this.belongsTo('App/Models/Priority')
+    }
+
 }
 
 module.exports = Task

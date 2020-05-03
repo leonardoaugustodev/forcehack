@@ -1,92 +1,55 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
+const Priority = use('App/Models/Priority')
 
 /**
  * Resourceful controller for interacting with priorities
  */
 class PriorityController {
-  /**
-   * Show a list of all priorities.
-   * GET priorities
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async index() {
+    return await Priority.all()
   }
 
-  /**
-   * Render a form to be used for creating a new priority.
-   * GET priorities/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request }) {
+    const priorityInserted = await Priority.create(request.body)
+
+    if (!priorityInserted) {
+      return response.status(500).json({ message: 'Error on inserting priority' })
+    }
+
+    return priorityInserted
   }
 
-  /**
-   * Create/save a new priority.
-   * POST priorities
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    const priority = await Priority.find(params.id)
+
+    if (!priority) {
+      return response.status(404).json({ message: 'Priority not found' })
+    }
+
+    return priority;
   }
 
-  /**
-   * Display a single priority.
-   * GET priorities/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
+  async update({ params, request, response }) {
+    const priority = await Priority.find(params.id)
+
+    if (!priority) {
+      return response.status(404).json({ message: 'Priority not found' })
+    }
+
+    priority.merge(request.body)
+
+    return await priority.save()
   }
 
-  /**
-   * Render a form to update an existing priority.
-   * GET priorities/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+  async destroy({ params, response }) {
+    const priority = await Priority.find(params.id)
 
-  /**
-   * Update priority details.
-   * PUT or PATCH priorities/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+    if (!priority) {
+      return response.status(404).json({ message: 'Priority not found' })
+    }
 
-  /**
-   * Delete a priority with id.
-   * DELETE priorities/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    await priority.delete()
   }
 }
 

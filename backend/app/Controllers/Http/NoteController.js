@@ -1,92 +1,54 @@
 'use strict'
 
-/** @typedef {import('@adonisjs/framework/src/Request')} Request */
-/** @typedef {import('@adonisjs/framework/src/Response')} Response */
-/** @typedef {import('@adonisjs/framework/src/View')} View */
-
+const Note = use('App/Models/Note')
 /**
  * Resourceful controller for interacting with notes
  */
 class NoteController {
-  /**
-   * Show a list of all notes.
-   * GET notes
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async index ({ request, response, view }) {
+  async index() {
+    return await Note.all()
   }
 
-  /**
-   * Render a form to be used for creating a new note.
-   * GET notes/create
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async create ({ request, response, view }) {
+  async store({ request }) {
+    const noteInserted = await Note.create(request.body)
+
+    if (!noteInserted) {
+      return response.status(500).json({ message: 'Error on inserting note' })
+    }
+
+    return noteInserted
   }
 
-  /**
-   * Create/save a new note.
-   * POST notes
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async store ({ request, response }) {
+  async show({ params, response }) {
+    const note = await Note.find(params.id)
+
+    if (!note) {
+      return response.status(404).json({ message: 'Note not found' })
+    }
+
+    return note;
   }
 
-  /**
-   * Display a single note.
-   * GET notes/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async show ({ params, request, response, view }) {
+  async update({ params, request, response }) {
+    const note = await Note.find(params.id)
+
+    if (!note) {
+      return response.status(404).json({ message: 'Note not found' })
+    }
+
+    note.merge(request.body)
+
+    return await note.save()
   }
 
-  /**
-   * Render a form to update an existing note.
-   * GET notes/:id/edit
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   * @param {View} ctx.view
-   */
-  async edit ({ params, request, response, view }) {
-  }
+  async destroy({ params, response }) {
+    const note = await Note.find(params.id)
 
-  /**
-   * Update note details.
-   * PUT or PATCH notes/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async update ({ params, request, response }) {
-  }
+    if (!note) {
+      return response.status(404).json({ message: 'Note not found' })
+    }
 
-  /**
-   * Delete a note with id.
-   * DELETE notes/:id
-   *
-   * @param {object} ctx
-   * @param {Request} ctx.request
-   * @param {Response} ctx.response
-   */
-  async destroy ({ params, request, response }) {
+    await note.delete()
   }
 }
 

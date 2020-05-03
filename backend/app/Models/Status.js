@@ -4,6 +4,10 @@
 const Model = use('Model')
 
 class Status extends Model {
+    task() {
+        return this.hasMany('App/Models/Task')
+    }
+
 }
 
 module.exports = Status

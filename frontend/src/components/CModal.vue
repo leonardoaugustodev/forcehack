@@ -1,18 +1,9 @@
 <template>
-  <div v-show="showModal" class="modal-overlay">
+  <div class="modal-overlay">
     <div class="modal-container">
       <div class="modal-header">
         <h3>{{ title }}</h3>
-        <my-button
-          label="Confirm"
-          icon="times"
-          type="icon"
-          :onClick="
-            () => {
-              showModal = false;
-            }
-          "
-        />
+        <my-button label="Confirm" icon="times" type="icon" :onClick="onClose" />
       </div>
 
       <div class="modal-content">
@@ -36,14 +27,12 @@ export default {
     'my-button': CButton,
   },
   props: {
-    show: Boolean,
     title: String,
     onConfirm: Function,
+    onClose: Function,
   },
   data() {
-    return {
-      showModal: this.show,
-    };
+    return {};
   },
   methods: {},
   watch: {},

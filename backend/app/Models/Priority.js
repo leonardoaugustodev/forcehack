@@ -4,6 +4,9 @@
 const Model = use('Model')
 
 class Priority extends Model {
+    task() {
+        return this.hasMany('App/Models/Task')
+    }
 }
 
 module.exports = Priority
