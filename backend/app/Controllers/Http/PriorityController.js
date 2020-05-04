@@ -7,7 +7,17 @@ const Priority = use('App/Models/Priority')
  */
 class PriorityController {
   async index() {
-    return await Priority.all()
+    const priorities = await Priority.all()
+
+    const options = []
+    priorities.rows.forEach(status => {
+      options.push({
+        'value': status.id,
+        'label': status.name
+      });
+    })
+
+    return options
   }
 
   async store({ request }) {

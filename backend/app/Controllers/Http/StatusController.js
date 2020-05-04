@@ -7,7 +7,17 @@ const Status = use('App/Models/Status')
  */
 class StatusController {
   async index() {
-    return await Status.all()
+    const statuses = await Status.all()
+
+    const options = []
+    statuses.rows.forEach(status => {
+      options.push({
+        'value': status.id,
+        'label': status.name
+      });
+    })
+
+    return options
   }
 
   async store({ request }) {

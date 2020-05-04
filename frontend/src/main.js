@@ -9,6 +9,7 @@ import 'vue-awesome/icons';
 Vue.config.productionTip = false;
 Vue.component('v-icon', Icon);
 Vue.prototype.$http = api;
+Vue.prototype.$toast = true;
 
 new Vue({
   router,

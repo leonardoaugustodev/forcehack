@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <my-toast @show-toast="handleShowToast" v-model="toast"></my-toast>
     <div id="header">
       <div>
         <img src="./assets/logo.png" />
@@ -18,6 +19,29 @@
     </div>
   </div>
 </template>
+
+<script>
+import CToast from '@/components/CToast.vue';
+
+export default {
+  name: 'App',
+  components: {
+    'my-toast': CToast,
+  },
+  data() {
+    return {
+      toast: {},
+    };
+  },
+  methods: {
+    handleShowToast(toast) {
+      console.log('showToast');
+      console.log(toast);
+      this.toast = toast;
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 #app {

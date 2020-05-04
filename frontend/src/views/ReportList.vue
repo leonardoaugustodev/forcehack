@@ -1,32 +1,27 @@
 <template>
   <div class="reports">
-    <CModal :show="true" title="Modal test">
-      <template v-slot:content>
-        <CInput label="Name" />
-        <CInput label="Description" />
-      </template>
-      <template v-slot:footer>
-        <CButton label="Confirm" icon="check" onclick="console.log('ok')" />
-      </template>
-    </CModal>
+    <my-toast
+      v-model="showToast"
+      type="error"
+      title="Modal test"
+      message="Mensagem teste de conteúdo"
+    ></my-toast>
   </div>
 </template>
 
 <script>
-import CModal from '@/components/CModal.vue';
-import CInput from '@/components/CInput.vue';
-import CButton from '@/components/CButton.vue';
+import CToast from '@/components/CToast.vue';
 
 export default {
   name: 'ReportList',
   components: {
-    CModal,
-    CInput,
-    CButton,
+    'my-toast': CToast,
   },
   created() {},
   data() {
-    return {};
+    return {
+      showToast: true,
+    };
   },
   computed: {},
   methods: {

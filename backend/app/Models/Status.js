@@ -4,7 +4,7 @@
 const Model = use('Model')
 
 class Status extends Model {
-    task() {
+    tasks() {
         return this.hasMany('App/Models/Task')
     }
 
