@@ -4,6 +4,9 @@
 const Model = use('Model')
 
 class TimeReport extends Model {
+    task() {
+        return this.belongsTo('App/Models/Task')
+    }
 }
 
 module.exports = TimeReport

@@ -1,42 +1,58 @@
 <template>
-  <div class="tasks">
-    <div class="header">
-      <span class="header-title">Tasks</span>
-      <my-button label="New task" :onClick="() => {modalNewTask = true}" icon="plus" />
+  <div class="task-list-wrapper">
+    <div class="task-list">
+      <div class="header">
+        <span class="header-title">Tasks</span>
+        <my-button
+          label="New task"
+          :onClick="
+            () => {
+              modalNewTask = true;
+            }
+          "
+          icon="plus"
+        />
+      </div>
+
+      <my-modal
+        v-show="modalNewTask"
+        title="New task"
+        :onConfirm="handleNewTask"
+        :onClose="
+          () => {
+            modalNewTask = false;
+          }
+        "
+      >
+        <template v-slot:content>
+          <my-input v-model="newTask.name" label="Task name" />
+          <my-input v-model="newTask.description" label="Task description" />
+          <my-select v-model="newTask.status_id" label="Status" :data="statuses" />
+          <my-select v-model="newTask.priority_id" label="Priority" :data="priorities" />
+        </template>
+        <template v-slot:footer></template>
+      </my-modal>
+
+      <template v-if="loading">
+        <my-loading />
+      </template>
+
+      <template v-if="!loading">
+        <div v-for="task in tasks" :key="task.id" @click="handleNavigate(task.id)" class="task">
+          <span class="task-name">{{ task.name }}</span>
+          <span class="task-priority">{{ task.priority.name }}</span>
+          <span class="task-status" :style="'color: ' + task.status.color">
+            {{ task.status.name }}
+          </span>
+          <span class="task-time">{{ task.total_reported }}</span>
+          <span class="task-date">{{ formatDate(task.created_at) }}</span>
+        </div>
+      </template>
     </div>
 
-    <my-modal
-      v-show="modalNewTask"
-      title="New task"
-      :onConfirm="handleNewTask"
-      :onClose="() => {modalNewTask = false}"
-    >
-      <template v-slot:content>
-        <my-input v-model="newTask.name" label="Task name" />
-        <my-input v-model="newTask.description" label="Task description" />
-        <my-select v-model="newTask.status_id" label="Status" :data="statuses" />
-        <my-select v-model="newTask.priority_id" label="Priority" :data="priorities" />
-      </template>
-      <template v-slot:footer></template>
-    </my-modal>
-
-    <template v-if="loading">
-      <my-loading />
-    </template>
-
-    <template v-if="!loading">
-      <div v-for="task in tasks" :key="task.id" @click="handleNavigate(task.id)" class="task">
-        <span class="task-name">{{ task.name }}</span>
-        <span class="task-priority">{{ task.priority.name }}</span>
-        <span class="task-status" :style="'color: ' + task.status.color">
-          {{
-          task.status.name
-          }}
-        </span>
-        <span class="task-time">{{ task.total_reported }}</span>
-        <span class="task-date">{{ formatDate(task.created_at) }}</span>
-      </div>
-    </template>
+    <div v-if="currentTask" class="task-details">
+      <my-task-details :taskId="currentTask" />
+    </div>
   </div>
 </template>
 
@@ -47,6 +63,7 @@ import CModal from '@/components/CModal.vue';
 import CInput from '@/components/CInput.vue';
 import CSelect from '@/components/CSelect.vue';
 import CLoading from '@/components/CLoading.vue';
+import TaskDetails from '@/views/TaskDetails.vue';
 
 export default {
   name: 'TaskList',
@@ -56,6 +73,7 @@ export default {
     'my-input': CInput,
     'my-select': CSelect,
     'my-loading': CLoading,
+    'my-task-details': TaskDetails,
   },
   created() {
     this.handleRetrieveTasks();
@@ -68,36 +86,18 @@ export default {
       newTask: {},
       modalNewTask: false,
       loading: false,
-      toast: {
-        show: false,
-        type: 'success',
-        title: null,
-        message: null,
-        duration: 2000,
-      },
-      statuses: [
-        {
-          label: 'Open',
-          value: 1,
-        },
-        {
-          label: 'Close',
-          value: 2,
-        },
-      ],
-      priorities: [
-        {
-          label: 'Low',
-          value: 1,
-        },
-        {
-          label: 'Medium',
-          value: 2,
-        },
-      ],
+      currentTask: null,
     };
   },
-  computed: {},
+  computed: {
+    statuses() {
+      return this.$store.state.statuses || [];
+    },
+
+    priorities() {
+      return this.$store.state.priorities || [];
+    },
+  },
   methods: {
     async handleRetrieveTasks() {
       this.loading = true;
@@ -108,17 +108,17 @@ export default {
 
     async handleRetrieveStatuses() {
       const response = await this.$http.get('statuses');
-      this.statuses = response.data;
+      this.$store.commit('populateStatuses', response.data);
     },
 
     async handleRetrievePriorities() {
       const response = await this.$http.get('priorities');
-      this.priorities = response.data;
+      this.$store.commit('populatePriorities', response.data);
     },
 
     handleNavigate(taskId) {
-      console.log(taskId);
-      this.$router.push(`/task/${taskId}`);
+      this.currentTask = taskId;
+      // this.$router.push(`/task/${taskId}`);
     },
 
     async handleNewTask() {
@@ -157,49 +157,53 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.task {
-  flex: 1;
-  background: #eee;
-  margin: 5px;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
+.task-list-wrapper {
+  display: grid;
+  grid-template-columns: 50% 50%;
+}
 
+.task-list {
   display: flex;
-  justify-content: space-between;
+  flex: 1;
+  flex-direction: column;
+}
+
+.task {
+  // flex: 1;
+  // background: #eee;
+  border-bottom: 1px double $light-green;
+  cursor: pointer;
+  margin: 5px;
+  padding: 10px 15px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+
+  // display: flex;
+  // flex-direction: column;
+
+  display: grid;
+  grid-template-columns: 40% 15% 15% 15% 15%;
+  grid-gap: 5px;
+  justify-content: center;
   align-items: center;
 
+  font-size: 0.8em;
+
+  // justify-items: center;
+
   &:hover {
-    background: #ddd;
+    background: #efe;
     font-weight: bold;
     transition: background-color 0.5s ease;
   }
 
-  // > span {
-  //   border: 1px solid #ddd;
-  // }
-
   &-name {
     text-align: left;
-    width: 40%;
-  }
-
-  &-priority {
-    width: 15%;
-  }
-
-  &-status {
-    width: 15%;
-  }
-
-  &-time {
-    width: 15%;
   }
 
   &-date {
-    width: 15%;
     color: rgb(94, 194, 201);
-    font-size: 12px;
+    // font-size: 12px;
   }
 }
 
@@ -224,40 +228,40 @@ export default {
     margin-bottom: 20px;
   }
 }
-button {
-  height: 24px;
-  width: 80px;
+// button {
+//   height: 24px;
+//   width: 80px;
 
-  border: 0px;
-  border-radius: 4px;
+//   border: 0px;
+//   border-radius: 4px;
 
-  background: rgb(0, 0, 0, 0);
-  color: $light-blue;
+//   background: rgb(0, 0, 0, 0);
+//   color: $light-blue;
 
-  &:hover {
-    background: $light-green;
-    color: $blue;
-    transition: 0.5s all ease;
+//   &:hover {
+//     background: $light-green;
+//     color: $blue;
+//     transition: 0.5s all ease;
 
-    > svg {
-      display: none;
-    }
+//     > svg {
+//       display: none;
+//     }
 
-    &[for='edit']::after {
-      content: 'Edit';
-    }
+//     &[for='edit']::after {
+//       content: 'Edit';
+//     }
 
-    &[for='save']::after {
-      content: 'Save';
-    }
+//     &[for='save']::after {
+//       content: 'Save';
+//     }
 
-    &[for='cancel']::after {
-      content: 'Cancel';
-    }
+//     &[for='cancel']::after {
+//       content: 'Cancel';
+//     }
 
-    &[for='new-note']::after {
-      content: 'Add note';
-    }
-  }
-}
+//     &[for='new-note']::after {
+//       content: 'Add note';
+//     }
+//   }
+// }
 </style>

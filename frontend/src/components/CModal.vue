@@ -3,7 +3,7 @@
     <div class="modal-container">
       <div class="modal-header">
         <h3>{{ title }}</h3>
-        <my-button label="Confirm" icon="times" type="icon" :onClick="onClose" />
+        <my-button icon="times" type="icon" :onClick="onClose" />
       </div>
 
       <div class="modal-content">

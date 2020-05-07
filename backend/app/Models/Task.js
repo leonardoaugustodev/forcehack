@@ -9,7 +9,7 @@ class Task extends Model {
         return this.hasMany('App/Models/Note')
     }
 
-    timeReports() {
+    time_reports() {
         return this.hasMany('App/Models/TimeReport')
     }
 
@@ -19,6 +19,10 @@ class Task extends Model {
 
     priority() {
         return this.belongsTo('App/Models/Priority')
+    }
+
+    notes() {
+        return this.hasMany('App/Models/Note')
     }
 
 }

@@ -1,132 +1,204 @@
 <template>
-  <div>
-    <div class="header">
-      <span class="header-title">{{ task.name }}</span>
-      <button for="new-note" @click="isInsertingNote = !isInsertingNote">
-        <v-icon name="sticky-note" />
-      </button>
-    </div>
+  <div class="task-details-wrapper">
+    <template v-if="loading">
+      <my-loading />
+    </template>
 
-    <div class="task">
-      <div class="left">
-        <!-- NEW TASK -->
-        <div v-if="isInsertingNote" id="new-task">
-          <h4>Insert a new task</h4>
-          <div class="new-task-name">
-            <CInput id="name" label="Note name" v-model="newNote.name" />
-            <button for="save" @click="handleSaveNewNote">
-              <v-icon name="save" />
-            </button>
-          </div>
-          <textarea placeholder="Insert a note..." rows="20" v-model="newNote.text" />
-        </div>
-
-        <template v-for="note in task.notes">
-          <div :key="note.id" class="task-note">
-            <div class="task-note-name">
-              <span>{{ dateFormatted(note.created_date) }} - {{ note.name }}</span>
-              <div class="buttons">
-                <button for="edit" v-if="editingNote.id != note.id" @click="handleEditNote(note)">
-                  <v-icon name="edit" />
-                </button>
-                <button for="save" v-if="editingNote.id == note.id" @click="handleSaveNote">
-                  <v-icon name="save" />
-                </button>
-                <button for="cancel" v-if="editingNote.id == note.id" @click="handleCancel">
-                  <v-icon name="times" />
-                </button>
-              </div>
-            </div>
-            <div class="task-note-text">
-              <div
-                class="task-note-md"
-                v-if="editingNote.id != note.id"
-                v-html="markdownContent(note.text)"
-              ></div>
-              <div v-if="editingNote.id == note.id">
-                <textarea rows="20" v-model="note.text" />
-              </div>
-            </div>
-          </div>
-        </template>
+    <template v-if="!loading">
+      <div class="header">
+        <span class="header-title">{{ task.name }}</span>
+        <my-button
+          label="New note"
+          icon="sticky-note"
+          :onClick="
+            () => {
+              modalNewNote = !modalNewNote;
+            }
+          "
+        />
       </div>
 
-      <div class="right">
-        <div class="task-created-date">
-          <label for="task-created-date">Date:</label>
-          <span id="task-created-date">{{ dateFormatted(task.created_date) }}</span>
-        </div>
-        <div class="task-priority">
-          <span class="label">Priority:</span>
-          {{ task.priority }}
-        </div>
-        <div class="task-status">
-          <span class="label">Status:</span>
-          {{ task.status.name }}
-        </div>
-        <div class="task-time">
-          <span class="label">Time reported:</span>
-          {{ timeFormatted(task.total_reported) }}
-        </div>
+      <div class="task">
+        <div class="left">
+          <!-- NEW TASK -->
+          <my-modal
+            v-show="modalNewNote"
+            title="New note"
+            :onConfirm="handleNewNote"
+            :onClose="
+              () => {
+                modalNewNote = false;
+              }
+            "
+          >
+            <template v-slot:content>
+              <my-input id="name" label="Note name" v-model="newNote.name" />
+              <textarea placeholder="Insert a note..." rows="20" v-model="newNote.content" />
+            </template>
+          </my-modal>
 
-        <!-- <div class="task-timeList">
-          <template v-for="time in task.time_reported">
-            <div class="time" :key="time.id">
-              <span>{{ time.name }}</span>
-              <span>{{ timeFormatted(time.minutes) }}</span>
+          <!-- <div v-if="isInsertingNote" id="new-task">
+            <h4>Insert a new task</h4>
+            <div class="new-task-name">
+              <my-button label="Save" icon="save" :onClick="handleSaveNewNote" />
+            </div>
+          </div>-->
+
+          <template v-for="note in task.notes">
+            <div :key="note.id" class="task-note">
+              <div class="task-note-name">
+                <span>{{ dateFormatted(note.created_at) }} - {{ note.name }}</span>
+                <div class="buttons">
+                  <button for="edit" v-if="editingNote.id != note.id" @click="handleEditNote(note)">
+                    <v-icon name="edit" />
+                  </button>
+                  <button for="save" v-if="editingNote.id == note.id" @click="handleSaveNote">
+                    <v-icon name="save" />
+                  </button>
+                  <button for="cancel" v-if="editingNote.id == note.id" @click="handleCancel">
+                    <v-icon name="times" />
+                  </button>
+                </div>
+              </div>
+              <div class="task-note-text">
+                <div
+                  class="task-note-md"
+                  v-if="editingNote.id != note.id"
+                  v-html="markdownContent(note.content)"
+                ></div>
+                <div v-if="editingNote.id == note.id">
+                  <textarea rows="20" v-model="note.content" />
+                </div>
+              </div>
             </div>
           </template>
-        </div>-->
+        </div>
+
+        <div class="right">
+          <div class="task-created-date">
+            <div class="task-info">
+              <div class="info-icon">
+                <v-icon style="color: #1ac7d0" name="calendar" height="20px" width="20px" />
+              </div>
+              <div>
+                <div class="info-label">Date:</div>
+                <div class="info-value">{{ dateFormatted(task.created_at) }}</div>
+              </div>
+            </div>
+
+            <div class="task-info">
+              <div class="info-icon">
+                <v-icon style="color: #6ac593" name="fire" height="20px" width="20px" />
+              </div>
+              <div>
+                <div class="info-label">Priority:</div>
+                <div class="info-value">
+                  <my-select :data="priorities" :default="task.priority.id" />
+                </div>
+              </div>
+            </div>
+
+            <div class="task-info">
+              <div class="info-icon">
+                <v-icon style="color: #ff3859" name="flag-checkered" height="20px" width="20px" />
+              </div>
+              <div>
+                <div class="info-label">Status:</div>
+                <div class="info-value">
+                  <my-select :data="statuses" :default="task.status.id" />
+                </div>
+              </div>
+            </div>
+
+            <div class="task-info">
+              <div class="info-icon">
+                <v-icon style="color: #cf6fe0" name="stopwatch" height="20px" width="20px" />
+              </div>
+              <div>
+                <div class="info-label">Time reported:</div>
+                <div class="info-value">{{ timeFormatted(task.total_reported) }}</div>
+              </div>
+              <my-button label="Report a time" type="icon" icon="plus" />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </template>
   </div>
 </template>
 
 <script>
 import marked from 'marked';
-import axios from 'axios';
 import CInput from '@/components/CInput.vue';
+import CLoading from '@/components/CLoading.vue';
+import CButton from '@/components/CButton.vue';
+import CModal from '@/components/CModal.vue';
+import CSelect from '@/components/CSelect.vue';
 
 export default {
   name: 'TaskDetails',
+  props: ['taskId'],
   components: {
-    CInput,
+    'my-input': CInput,
+    'my-loading': CLoading,
+    'my-button': CButton,
+    'my-modal': CModal,
+    'my-select': CSelect,
   },
   created() {
-    this.handleRetrieveTask();
+    // this.handleRetrieveTask();
   },
   data() {
     return {
+      loading: false,
       task: {
         name: String,
         notes: {
           name: String,
-          text: String,
+          content: String,
         },
         status: {
           name: String,
         },
+        priority: {
+          name: String,
+        },
       },
-      isInsertingNote: false,
+      modalNewNote: false,
       editingNote: {},
       newNote: {},
-      teste: null,
     };
   },
-  computed: {},
+  computed: {
+    statuses() {
+      return this.$store.state.statuses || [];
+    },
+
+    priorities() {
+      return this.$store.state.priorities || [];
+    },
+  },
   watch: {
-    // teste(val) {
-    //   console.log(`var: ${val}`);
-    //   console.log(this.teste);
-    // },
+    taskId(nv) {
+      this.handleRetrieveTask(nv);
+    },
   },
   methods: {
     async handleRetrieveTask() {
-      const response = await axios.get(
-        `http://192.168.15.171:3002/api/v1/task/${this.$route.params.id}`,
-      );
-
+      this.loading = true;
+      const response = await this.$http.get(`tasks/${this.taskId}`);
       this.task = response.data;
+      this.loading = false;
+    },
+
+    async handleRetrieveStatuses() {
+      const response = await this.$http.get('statuses');
+      this.statuses = response.data;
+    },
+
+    async handleRetrievePriorities() {
+      const response = await this.$http.get('priorities');
+      this.priorities = response.data;
     },
 
     handleEditNote(note) {
@@ -138,26 +210,27 @@ export default {
     },
 
     async handleSaveNote() {
-      const response = await axios.put(
-        `http://192.168.15.171:3002/api/v1/task/${this.task.id}/note/${this.editingNote.id}`,
-        this.editingNote,
-      );
+      const response = await this.$http.put('notes', {
+        ...this.editingNote,
+        task_id: this.$route.params.id,
+      });
 
       this.task.notes = response.data;
 
       this.editingNote = {};
     },
 
-    async handleSaveNewNote() {
-      const response = await axios.post(
-        `http://192.168.15.171:3002/api/v1/task/${this.task.id}/note/`,
-        this.newNote,
-      );
+    async handleNewNote() {
+      const response = await this.$http.post('notes', {
+        ...this.newNote,
+        task_id: this.$route.params.id,
+      });
 
-      this.task.notes = response.data;
+      // const { notes } = this.task;
+      this.task.notes = Object.assign(this.task.notes, this.task.notes.push(response.data));
 
       this.newNote = {};
-      this.isInsertingNote = false;
+      this.modalNewNote = false;
     },
 
     markdownContent(text) {
@@ -186,6 +259,9 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.task-details-wrapper {
+  height: 100%;
+}
 .header {
   display: grid;
   grid-template-columns: 80% auto;
@@ -207,6 +283,8 @@ export default {
   display: grid;
   grid-template-areas: 'left right';
   grid-template-columns: 60% auto;
+  grid-template-rows: 100%;
+  height: calc(100% - 70px);
 
   & > .left {
     padding: 10px;
@@ -219,13 +297,33 @@ export default {
     text-align: left;
     padding: 10px;
     grid-area: right;
+    height: 100%;
 
-    background: #eee;
+    background: #f7fdff;
 
     & > div {
       margin: 10px 0 0 0;
     }
   }
+
+  &-created-date {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.info-icon {
+  margin: 5px;
+}
+
+.info-label {
+  margin: 5px;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+
+.info-value {
+  margin: 5px;
 }
 
 .header-title {
@@ -348,5 +446,10 @@ input:focus {
   h1 {
     font-size: 13px;
   }
+}
+
+.task-info {
+  display: flex;
+  margin: 10px 5px;
 }
 </style>

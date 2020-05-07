@@ -35,8 +35,6 @@ export default {
   },
   methods: {
     handleShowToast(toast) {
-      console.log('showToast');
-      console.log(toast);
       this.toast = toast;
     },
   },
@@ -76,18 +74,16 @@ export default {
 }
 
 #main {
-  background: #3ef;
-
   display: flex;
   flex-direction: columns;
-
+  height: auto;
   flex: 1;
 }
 
 #nav {
   justify-content: center;
 
-  width: 200px;
+  width: 180px;
   background: $dark-blue;
 
   div {
@@ -117,9 +113,9 @@ export default {
 }
 
 #content {
-  background: rgb(245, 245, 245);
+  // background: rgb(245, 245, 245);
   padding: 10px;
-
   flex: 1;
+  height: calc(100% - 20px);
 }
 </style>
