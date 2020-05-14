@@ -114,8 +114,8 @@ export default {
 
 #content {
   // background: rgb(245, 245, 245);
-  padding: 10px;
+  // padding: 10px;
   flex: 1;
-  height: calc(100% - 20px);
+  height: 100%;
 }
 </style>

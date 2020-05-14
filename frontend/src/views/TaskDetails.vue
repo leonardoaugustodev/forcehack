@@ -1,5 +1,37 @@
 <template>
   <div class="task-details-wrapper">
+    <my-modal
+      v-show="modalNewNote"
+      title="New note"
+      :onConfirm="handleNewNote"
+      :onClose="
+        () => {
+          modalNewNote = false;
+        }
+      "
+    >
+      <template v-slot:content>
+        <my-input id="name" label="Note name" v-model="newNote.name" />
+        <textarea placeholder="Insert a note..." rows="10" v-model="newNote.content" />
+      </template>
+    </my-modal>
+
+    <my-modal
+      v-show="modalNewTimeReport"
+      title="Report a time"
+      :onConfirm="handleNewTime"
+      :onClose="
+        () => {
+          modalNewTimeReport = false;
+        }
+      "
+    >
+      <template v-slot:content>
+        <my-input id="time_name" label="Note" v-model="newTime.name" />
+        <my-input id="time_minutes" label="Minutes" v-model="newTime.minutes" />
+      </template>
+    </my-modal>
+
     <template v-if="loading">
       <my-loading />
     </template>
@@ -20,29 +52,19 @@
 
       <div class="task">
         <div class="left">
-          <!-- NEW TASK -->
-          <my-modal
-            v-show="modalNewNote"
-            title="New note"
-            :onConfirm="handleNewNote"
-            :onClose="
-              () => {
-                modalNewNote = false;
-              }
-            "
-          >
-            <template v-slot:content>
-              <my-input id="name" label="Note name" v-model="newNote.name" />
-              <textarea placeholder="Insert a note..." rows="20" v-model="newNote.content" />
-            </template>
-          </my-modal>
-
-          <!-- <div v-if="isInsertingNote" id="new-task">
-            <h4>Insert a new task</h4>
-            <div class="new-task-name">
-              <my-button label="Save" icon="save" :onClick="handleSaveNewNote" />
+          <div v-if="task.notes.length == 0">
+            <h3>No notes to display!</h3>
+            <div
+              class="new-note-text"
+              @click="
+                () => {
+                  modalNewNote = !modalNewNote;
+                }
+              "
+            >
+              Create a new note
             </div>
-          </div>-->
+          </div>
 
           <template v-for="note in task.notes">
             <div :key="note.id" class="task-note">
@@ -61,11 +83,7 @@
                 </div>
               </div>
               <div class="task-note-text">
-                <div
-                  class="task-note-md"
-                  v-if="editingNote.id != note.id"
-                  v-html="markdownContent(note.content)"
-                ></div>
+                <div class="task-note-md" v-if="editingNote.id != note.id" v-html="markdownContent(note.content)"></div>
                 <div v-if="editingNote.id == note.id">
                   <textarea rows="20" v-model="note.content" />
                 </div>
@@ -116,9 +134,18 @@
               </div>
               <div>
                 <div class="info-label">Time reported:</div>
-                <div class="info-value">{{ timeFormatted(task.total_reported) }}</div>
+                <div class="info-value">{{ timeFormatted(total_reported) }}</div>
               </div>
-              <my-button label="Report a time" type="icon" icon="plus" />
+              <my-button
+                label="Report a time"
+                type="icon"
+                icon="plus"
+                :onClick="
+                  () => {
+                    modalNewTimeReport = !modalNewTimeReport;
+                  }
+                "
+              />
             </div>
           </div>
         </div>
@@ -146,7 +173,7 @@ export default {
     'my-select': CSelect,
   },
   created() {
-    // this.handleRetrieveTask();
+    this.handleRetrieveTask(this.taskId);
   },
   data() {
     return {
@@ -165,8 +192,10 @@ export default {
         },
       },
       modalNewNote: false,
+      modalNewTimeReport: false,
       editingNote: {},
       newNote: {},
+      newTime: {},
     };
   },
   computed: {
@@ -176,6 +205,14 @@ export default {
 
     priorities() {
       return this.$store.state.priorities || [];
+    },
+
+    total_reported() {
+      const times = this.task.time_reports || [];
+
+      const totalTime = times.reduce((acc, val) => acc + parseInt(val.minutes, 10), 0);
+
+      return totalTime;
     },
   },
   watch: {
@@ -210,9 +247,9 @@ export default {
     },
 
     async handleSaveNote() {
-      const response = await this.$http.put('notes', {
+      const response = await this.$http.put(`notes/${this.editingNote.id}`, {
         ...this.editingNote,
-        task_id: this.$route.params.id,
+        task_id: this.taskId,
       });
 
       this.task.notes = response.data;
@@ -223,7 +260,7 @@ export default {
     async handleNewNote() {
       const response = await this.$http.post('notes', {
         ...this.newNote,
-        task_id: this.$route.params.id,
+        task_id: this.taskId,
       });
 
       // const { notes } = this.task;
@@ -231,6 +268,18 @@ export default {
 
       this.newNote = {};
       this.modalNewNote = false;
+    },
+
+    async handleNewTime() {
+      const response = await this.$http.post('times', {
+        ...this.newTime,
+        task_id: this.taskId,
+      });
+
+      this.task.time_reports = Object.assign(this.task.time_reports, this.task.time_reports.push(response.data));
+
+      this.newTime = {};
+      this.modalNewTimeReport = false;
     },
 
     markdownContent(text) {
@@ -249,8 +298,15 @@ export default {
     },
 
     timeFormatted(time) {
-      const hours = Math.floor(time / 60);
-      const minutes = time % 60;
+      function addZeroBefore(number) {
+        if (number < 10) {
+          return `0${number}`;
+        }
+        return number;
+      }
+
+      const hours = addZeroBefore(Math.floor(time / 60));
+      const minutes = addZeroBefore(time % 60);
 
       return `${hours}:${minutes}`;
     },
@@ -266,7 +322,7 @@ export default {
   display: grid;
   grid-template-columns: 80% auto;
   align-content: center;
-  height: 50px;
+  //   height: 50px;
 
   border-bottom: 1px solid rgb(0, 132, 255);
 
@@ -279,6 +335,18 @@ export default {
   }
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid $blue;
+  padding: 10px;
+}
+
+.header-title {
+  font-size: 18px;
+  font-weight: bolder;
+}
+
 .task {
   display: grid;
   grid-template-areas: 'left right';
@@ -289,6 +357,7 @@ export default {
   & > .left {
     padding: 10px;
     grid-area: left;
+    font-size: 0.8em;
 
     // background: lightseagreen;
   }
@@ -299,7 +368,7 @@ export default {
     grid-area: right;
     height: 100%;
 
-    background: #f7fdff;
+    background: #fff;
 
     & > div {
       margin: 10px 0 0 0;
@@ -451,5 +520,27 @@ input:focus {
 .task-info {
   display: flex;
   margin: 10px 5px;
+}
+
+.time-report-list {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: 10px 5px;
+  font-size: 0.8em;
+
+  > .time-report-title {
+    font-size: 1.2em;
+    font-weight: bold;
+  }
+}
+
+.new-note-text {
+  cursor: pointer;
+  color: #bbb;
+
+  &:hover {
+    color: $red;
+  }
 }
 </style>

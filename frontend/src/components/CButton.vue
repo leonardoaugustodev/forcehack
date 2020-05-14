@@ -24,7 +24,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
 @keyframes spin-icon {
   80% {
@@ -45,6 +44,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: #ccc;
 
   &:hover {
     background: #eee;
@@ -60,8 +60,6 @@ export default {
     > label {
       cursor: pointer;
       display: block;
-
-      transition: 3s all ease;
     }
 
     > svg {
@@ -69,7 +67,7 @@ export default {
     }
 
     background: $light-green;
-    color: $blue;
+    color: #111;
     transition: 1s all ease-in-out;
   }
 }

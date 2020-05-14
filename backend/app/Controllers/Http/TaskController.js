@@ -11,6 +11,7 @@ class TaskController {
       .with("status")
       .with("priority")
       .with("notes")
+      .with("time_reports")
       .fetch();
   }
 

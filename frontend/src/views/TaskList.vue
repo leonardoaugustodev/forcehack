@@ -41,9 +41,9 @@
         <div v-for="task in tasks" :key="task.id" @click="handleNavigate(task.id)" class="task">
           <span class="task-name">{{ task.name }}</span>
           <span class="task-priority">{{ task.priority.name }}</span>
-          <span class="task-status" :style="'color: ' + task.status.color">
-            {{ task.status.name }}
-          </span>
+          <span class="task-status" :style="'color: ' + task.status.color">{{
+            task.status.name
+          }}</span>
           <span class="task-time">{{ task.total_reported }}</span>
           <span class="task-date">{{ formatDate(task.created_at) }}</span>
         </div>
@@ -159,7 +159,9 @@ export default {
 <style scoped lang="scss">
 .task-list-wrapper {
   display: grid;
-  grid-template-columns: 50% 50%;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+
+  height: 100%;
 }
 
 .task-list {
@@ -219,6 +221,11 @@ export default {
   font-weight: bolder;
 }
 
+.task-details {
+  border-left: 1px solid #ddd;
+  background: #fafafa;
+}
+
 #new-task {
   > h4 {
     border-bottom: 1px solid $light-blue;
@@ -228,40 +235,4 @@ export default {
     margin-bottom: 20px;
   }
 }
-// button {
-//   height: 24px;
-//   width: 80px;
-
-//   border: 0px;
-//   border-radius: 4px;
-
-//   background: rgb(0, 0, 0, 0);
-//   color: $light-blue;
-
-//   &:hover {
-//     background: $light-green;
-//     color: $blue;
-//     transition: 0.5s all ease;
-
-//     > svg {
-//       display: none;
-//     }
-
-//     &[for='edit']::after {
-//       content: 'Edit';
-//     }
-
-//     &[for='save']::after {
-//       content: 'Save';
-//     }
-
-//     &[for='cancel']::after {
-//       content: 'Cancel';
-//     }
-
-//     &[for='new-note']::after {
-//       content: 'Add note';
-//     }
-//   }
-// }
 </style>
